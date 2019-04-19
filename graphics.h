@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "font.h"
+#include "math_simple.h"
 inline u8 rgba_red(u32 color) { return color >> 24; }
 inline u8 rgba_green(u32 color) { return (color >> 16) & 0xFF; }
 inline u8 rgba_blue(u32 color) { return (color >> 8) & 0xFF; }
@@ -48,8 +49,10 @@ typedef struct LCD {
 inline u32 get_lcd_index(LCD* lcd, u16 x, u16 y) { return x + (y * lcd->width); }
 
 inline void  draw_line(Bitmap *pixels, rgbacolor color, u16 x0, u16 y0, u16 x1, u16 y1) {
-    int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-    int dy = abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    int dx = abs(x1 - x0);
+    int sx = x0 < x1 ? 1 : -1;
+    int dy = abs(y1 - y0);
+    int sy = y0 < y1 ? 1 : -1;
     int err = (dx > dy ? dx : -dy) / 2, e2;
 
     for (;;) {

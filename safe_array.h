@@ -1,9 +1,5 @@
 #ifndef UTIL_SAFE_ARRAY_H_
 #define UTIL_SAFE_ARRAY_H_
-#include <stdbool.h>
-
-#include <stdint.h>
-#include <stddef.h>
 #include "types.h"
 
 #define foreach(x) for((x)->cursor = 0, (x)->value = &((x)->array[0]); (x)->cursor < (x)->size; (x)->value = &((x)->array[++((x)->cursor)]))

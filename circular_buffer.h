@@ -1,9 +1,15 @@
 #ifndef UTIL_CIRCULAR_BUFFER_H_
 #define UTIL_CIRCULAR_BUFFER_H_
+
 #include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
-#include "system_defs.h"
+
+#ifdef DONT_USE_ERROR_LOG
+#define log_error(a, b)
+#define EC_CIRCULAR_BUFFER_OVERFLOW
+#else
+#include "error_log.h"
+#endif
 
 #ifndef CIRCULAR_BUFFER_INDEX_TYPE
 #define CIRCULAR_BUFFER_INDEX_TYPE uint16_t
@@ -47,7 +53,8 @@ typedef struct {
     bool readSuccess;
 } Buffer_read_result;
 
-inline CIRCULAR_BUFFER_INDEX_TYPE advance_cursor(CIRCULAR_BUFFER_INDEX_TYPE current, CIRCULAR_BUFFER_INDEX_TYPE size) {
+inline CIRCULAR_BUFFER_INDEX_TYPE advance_cursor(
+CIRCULAR_BUFFER_INDEX_TYPE current, CIRCULAR_BUFFER_INDEX_TYPE size) {
     return (((current) + 1) & ((1 << size) - 1));
 }
 
@@ -55,14 +62,17 @@ inline CIRCULAR_BUFFER_INDEX_TYPE advance_cursor(CIRCULAR_BUFFER_INDEX_TYPE curr
  * Adds a value to the buffer in a circular fashion
  * If the buffer is full, log an error and overwrite the last value
  */
-inline void add_to_buffer(Circular_buffer *buffer, CIRCULAR_BUFFER_DATA_TYPE data) {
-	CIRCULAR_BUFFER_INDEX_TYPE newPosition = advance_cursor(buffer->writePosition, buffer->size);
+inline void add_to_buffer(Circular_buffer *buffer,
+CIRCULAR_BUFFER_DATA_TYPE data) {
+    CIRCULAR_BUFFER_INDEX_TYPE newPosition = advance_cursor(
+            buffer->writePosition, buffer->size);
 
     //Catching up to the read pointer means that the buffer has overflow
     if (newPosition == buffer->readPosition) {
         log_error(EC_CIRCULAR_BUFFER_OVERFLOW, buffer->identifier);
         //On error, just push the read position, overriding old data
-        buffer->readPosition = advance_cursor(buffer->readPosition, buffer->size);
+        buffer->readPosition = advance_cursor(buffer->readPosition,
+                buffer->size);
     }
 
     buffer->buffer[buffer->writePosition] = data;
@@ -74,7 +84,8 @@ inline void add_to_buffer(Circular_buffer *buffer, CIRCULAR_BUFFER_DATA_TYPE dat
  * returns true on success, false if there is no space
  */
 inline bool add_to_buffer_if_not_full(Circular_buffer *buffer, char data) {
-	CIRCULAR_BUFFER_INDEX_TYPE newPosition = advance_cursor(buffer->writePosition, buffer->size);
+    CIRCULAR_BUFFER_INDEX_TYPE newPosition = advance_cursor(
+            buffer->writePosition, buffer->size);
 
     //Catching up to the read pointer means that the buffer has overflow
     if (newPosition == buffer->readPosition) {
@@ -92,7 +103,8 @@ inline bool add_to_buffer_if_not_full(Circular_buffer *buffer, char data) {
  *
  */
 inline void get_from_buffer(Circular_buffer *buffer, Buffer_read_result* result) {
-    CIRCULAR_BUFFER_INDEX_TYPE index =  advance_cursor(buffer->readPosition, buffer->size);
+    CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
+            buffer->size);
     result->data = buffer->buffer[index];
     //This means that there are pending bytes
     result->readSuccess = index != buffer->writePosition;
@@ -108,7 +120,8 @@ inline void get_from_buffer(Circular_buffer *buffer, Buffer_read_result* result)
  *
  */
 inline void pop_from_buffer(Circular_buffer *buffer, Buffer_read_result* result) {
-    CIRCULAR_BUFFER_INDEX_TYPE index =  advance_cursor(buffer->readPosition, buffer->size);
+    CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
+            buffer->size);
 
     result->data = buffer->buffer[index];
     //This means that there are pending bytes

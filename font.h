@@ -8,7 +8,7 @@
 
 // standard ascii 5x7 font
 // defines ascii characters 0x20-0x7F (32-127)
-static u8 font_5_7[] = {
+static const u8 font_5_7[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00,// (space)
 	0x00, 0x00, 0x5F, 0x00, 0x00,// !
 	0x00, 0x07, 0x00, 0x07, 0x00,// "
@@ -107,7 +107,7 @@ static u8 font_5_7[] = {
 	0x08, 0x1C, 0x2A, 0x08, 0x08 // <-
 };
 
-inline u8* font_5_7_ascii(char c) {
+static inline const u8* font_5_7_ascii(char c) {
 	
 	if(c < 32 || c > 127) {
 		return font_5_7_ascii('?');

@@ -4,7 +4,7 @@
 const u8 xsize = 5, ysize = 7;
 void render_char(char letter, Bitmap * target, u8 scale, rgbacolor fg, rgbacolor bg, Point *offset_pos) {
 
-    u8 * font = font_5_7_ascii(letter);
+    const u8 * font = font_5_7_ascii(letter);
     for (u8 y = 0; y < ysize; y++) {
         for (u8 x = 0; x < xsize; x++) {
 

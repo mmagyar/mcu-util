@@ -29,3 +29,6 @@ A collection of useful, platform independent utilities in C99, targeting mainly 
     - stdint.h
 	- stdbool.h
 	- stddef.h
+	
+#License
+  Licensed under the MIT license

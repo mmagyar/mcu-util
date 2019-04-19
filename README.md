@@ -26,9 +26,10 @@ A collection of useful, platform independent utilities in C99, targeting mainly 
 # Dependencies
 
  The only dependencies are the most basic parts of the standrad c library:
-    - stdint.h
-	- stdbool.h
-	- stddef.h
+ 
+ - stdint.h
+ - stdbool.h
+ - stddef.h
 	
-#License
+# License
   Licensed under the MIT license

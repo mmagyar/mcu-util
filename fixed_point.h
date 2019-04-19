@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTIL_FIXED_POINT_H_
+#define UTIL_FIXED_POINT_H_
 
 #include "types.h"
 
@@ -27,3 +28,5 @@ typedef struct {
     s32 main : 8;
     s32 frac : 24;
 }S824;
+
+#endif

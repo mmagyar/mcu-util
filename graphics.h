@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTIL_GRAPHICS_H_
+#define UTIL_GRAPHICS_H_
 
 #include "types.h"
 #include "font.h"
@@ -70,3 +71,5 @@ void render_char(char letter, Bitmap * target, u8 scale, rgbacolor fg, rgbacolor
 void render_line(char * text, u16 width, Bitmap * target, u8 scale, rgbacolor fg, rgbacolor bg, Point *offset_pos);
 void bitmap_render_lcd(LCD *lcd, Bitmap * target, u8 scale, rgbacolor fg, rgbacolor bg, Point *offset_pos);
 void fill_rect(Bitmap * target, Point* from, Point * to, rgbacolor fill_color);
+
+#endif

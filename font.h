@@ -1,8 +1,5 @@
-#pragma once
-
-
-#ifndef FONT5X7_H
-#define FONT5X7_H
+#ifndef UTIL_FONT_H_
+#define UTIL_FONT_H_
 
 #include "types.h"
 

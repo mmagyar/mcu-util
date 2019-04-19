@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTIL_TYPES_H_
+#define UTIL_TYPES_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -49,3 +50,5 @@ typedef union u1 {
 	} nibbles_1bit;
 	u8 byte;
 } u1;
+
+#endif

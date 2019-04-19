@@ -4,8 +4,8 @@ A collection of useful, platform independent utilities in C99, targeting mainly 
 # Constrains of these utilities
  - No dynamic memory allocation
  - As little as posible static ram usage.
- - No float usage where possible
- 
+ - No float usage
+
 # Provided utilites
  - Simple error logging functionality with minimal memory usage
  - Array helper functions and a safe array implementation with foreach, safe value setting and getting with bounds checking, error reporting
@@ -24,7 +24,8 @@ A collection of useful, platform independent utilities in C99, targeting mainly 
  Clone the repository directly in to your src folder, and include the needed header files, or include system_defs.h to include everythig
  
 # Dependencies
-    The only dependencies are the most basic parts of the standrad c library:
-	    - stdint.h
-		- stdbool.h
-		- stddef.h
+
+ The only dependencies are the most basic parts of the standrad c library:
+    - stdint.h
+	- stdbool.h
+	- stddef.h

@@ -9,19 +9,19 @@ void log_error_direct(Error error) {
     bool errorAlreadyLogged = false;
     for (unsigned int i = 0; i < ERROR_LOG_SIZE; i++) {
         Error* lastError = &error_log[i];
-        char lastCode = lastError->errorCode;
+        char lastCode = lastError->error_code;
         char lastIdentifier = lastError->identifier;
-        if (lastCode == error.errorCode && lastIdentifier == error.identifier) {
+        if (lastCode == error.error_code && lastIdentifier == error.identifier) {
             errorAlreadyLogged = true;
         }
     }
-    if (!errorAlreadyLogged && errorCount < ERROR_LOG_SIZE) {
+    if (!errorAlreadyLogged && error_count < ERROR_LOG_SIZE) {
         //Copy error from stack to a known location
-        error_log[errorCount].errorCode = error.errorCode;
-        error_log[errorCount].identifier= error.identifier;
+        error_log[error_count].error_code = error.error_code;
+        error_log[error_count].identifier= error.identifier;
     }
 
-    errorCount++;
+    error_count++;
 
 }
 

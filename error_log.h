@@ -7,7 +7,9 @@
 #define ERROR_LOG_SIZE 16
 #endif
 
+
 typedef enum {
+    EC_NO_ERROR = 0x00,
     EC_CIRCULAR_BUFFER_ALLOCATE_FAIL = 0x01,
     EC_CIRCULAR_BUFFER_OVERFLOW = 0x02,
 
@@ -60,11 +62,11 @@ typedef enum {
  * in case of buffer error, it contains the buffers identifier
  */
 typedef struct {
-    Error_codes errorCode;
+    Error_codes error_code;
     char identifier;
 } Error;
 
-unsigned int errorCount;
+unsigned int error_count;
 void log_error_direct(Error error);
 void log_error(Error_codes, char identifier);
 Error error_log[ERROR_LOG_SIZE];

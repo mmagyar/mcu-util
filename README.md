@@ -13,6 +13,7 @@ A collection of useful, platform independent utilities in C99, targeting mainly 
  - Simple graphics drawing functions
  - A 5x7 Bitmap font in a header
  - Type definitions to simplify primitive types (ex: u16 instead of unsigned short or uint16_t)
+ - A Counter variable type that can be used when numbers with arbitrary maximum values are needed or when staturated arithmatic is needed.
  
 # Code style
  - Variable names are snake_case

@@ -10,18 +10,17 @@ typedef enum {
     CHANNEL_AFTERTOUCH = 0xD0,
     PITCH_WHEEL = 0xE0,
     SYSTEM_EXCLUSIVE = 0xF0
-//0XFx is reserved for system exclusive messages,
-// the last 4 bit does not mean the channel there
+/**0XFx is reserved for system exclusive messages,
+ the last 4 bit does not mean the channel there **/
 } Midi_message_type;
 
 typedef enum {
     Start = 1,
     //This may mean that the buffer is full.
     In_progress = 2,
-     //End submits remaining data when buffer used,
+    //End submits remaining data when buffer used,
     //and contains no data when there is no buffer
     End_sys_ex = 3,
-
 
 } SysExStatus;
 
@@ -319,7 +318,6 @@ typedef enum {
     DATA_1 = 10,
     DATA_2 = 20
 } RECEIVE_STATUS;
-
 
 // misc
 #define MIDI_SYSTEM_COMMON      0xF0

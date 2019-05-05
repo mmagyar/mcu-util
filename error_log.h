@@ -52,7 +52,10 @@ typedef enum {
     EC_MIDI_UNFINISHED_MESSAGE = 0x82,
 
     //Data receiving state machine is in an invalid state
-    EC_MIDI_INVALID_STATE = 0x83
+    EC_MIDI_INVALID_STATE = 0x83,
+
+    EC_FRAME_RECEIVED_START_WHILE_MESSAGE_STILL_IN_PROGRESS = 0x90,
+    EC_FRAME_RECEIVED_UNEXPECTED_BYTE = 0x91
 } Error_codes;
 
 /**

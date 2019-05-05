@@ -15,6 +15,7 @@ A collection of useful, platform independent utilities in C99, targeting mainly 
  - Type definitions to simplify primitive types (ex: u16 instead of unsigned short or uint16_t)
  - A Counter variable type that can be used when numbers with arbitrary maximum values are needed or when staturated arithmatic is needed.
  - Functions to send and process midi messages
+ - Data framing for serial communication with error checking
  
 # Code style
  - Variable names are snake_case

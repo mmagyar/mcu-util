@@ -81,13 +81,13 @@ Midi_sys_ex_byte_cb sys_ex_byte_callback = default_sys_ex_byte_handler;
 Current_message current = { READY, CH00, C4, CC_CH_000, 0, NOTE_OFF, false };
 
 #define RECEIVE_2_BYTES(byte1,byte2)    \
-    if (current.receive_status == MESSAGE_TYPE) { \
+    if (current.receive_status == STATUS_RECEIVED) { \
         current.receive_status = DATA_1; \
         byte1 \
     } else if (current.receive_status == DATA_1) { \
         current.receive_status = DATA_2; \
         byte2 \
-        current.receive_status = READY; \
+        current.receive_status = STATUS_RECEIVED; \
     } else { log_error(EC_MIDI_INVALID_STATE , 'r'); }
 
 void processIncomingMessages() {
@@ -99,7 +99,7 @@ void processIncomingMessages() {
 
     char midi_cd = bufferResult.data;
 
-    //High byte set, means new message
+    //High 4 bit set, means new message
     //System messages
     if ((midi_cd & 0xF0) == 0xF0) {
         switch (midi_cd) {
@@ -174,23 +174,18 @@ void processIncomingMessages() {
         //Normal midi message beginning, containing message type and channel.
     } else if (midi_cd & 0x80) {
 
-        if (current.receive_status != READY) {
+        if (!(current.receive_status == READY || current.receive_status == STATUS_RECEIVED)) {
             log_error(EC_MIDI_UNFINISHED_MESSAGE, 'r');
-            // return; // may need to rethink this error handling
+            // return; // may need to re think this error handling
         }
 
         //Midi channel was not assigned in the ignore group,
         //probably does not have any significance,
         //but leaving this comment if it does
         current.channel = (Midi_channel) (midi_cd & 0x0F);
-        current.receive_status = MESSAGE_TYPE;
+        current.receive_status = STATUS_RECEIVED;
 
-        //0xFE indicates that an input device is connected
-        if (midi_cd == 0xFE) {
-            //midi_running++;
-        } else {
-            current.message_type = (Midi_message_type) (midi_cd & 0xF0);
-        }
+        current.message_type = (Midi_message_type) (midi_cd & 0xF0);
 
     } else {
 #ifdef buffer_sys_ex
@@ -244,17 +239,15 @@ void processIncomingMessages() {
             );
             break;
         case PROGRAM_CHANGE:
-            if (current.receive_status == MESSAGE_TYPE) {
+            if (current.receive_status == STATUS_RECEIVED) {
                 program_change_callback(current.channel, midi_cd);
-                current.receive_status = READY;
             } else {
                 log_error(EC_MIDI_INVALID_STATE, 'p');
             }
             break;
         case CHANNEL_AFTERTOUCH:
-            if (current.receive_status == MESSAGE_TYPE) {
+            if (current.receive_status == STATUS_RECEIVED) {
                 channel_pressure_callback(current.channel, midi_cd);
-                current.receive_status = READY;
             } else {
                 log_error(EC_MIDI_INVALID_STATE, 'a');
             }

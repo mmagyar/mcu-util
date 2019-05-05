@@ -314,7 +314,7 @@ typedef enum {
 
 typedef enum {
     READY = 0,
-    MESSAGE_TYPE = 1,
+    STATUS_RECEIVED = 1, /** This means we have a status byte set up **/
     DATA_1 = 10,
     DATA_2 = 20
 } RECEIVE_STATUS;

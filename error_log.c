@@ -1,6 +1,6 @@
 #include "error_log.h"
 
-Error error_log[ERROR_LOG_SIZE] ={};
+Error error_log[ERROR_LOG_SIZE] ={0};
 /**
  * This function requires a stack allocated struct, this will be copied to the appropriate location
  * The user does not need to dynamically allocate memory for this.

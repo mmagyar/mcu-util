@@ -79,7 +79,7 @@ inline void get_from_buffer(Circular_buffer *buffer, Buffer_read_result* result)
  *
  */
 inline void pop_from_buffer(Circular_buffer *buffer, Buffer_read_result* result) {
-    CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
+   volatile CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
             buffer->size);
 
     result->data = buffer->buffer[index];

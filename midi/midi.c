@@ -168,7 +168,8 @@ void processIncomingMessages() {
             //Preferably under manual control. It should not be sent on power-up.
         case 0xFF:
             break;
-
+        default: //Should not happen
+            break;
         };
 
         //Normal midi message beginning, containing message type and channel.

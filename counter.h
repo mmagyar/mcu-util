@@ -8,6 +8,8 @@ typedef enum Counter_overflow_behaviour {
     OFB_WRAP_AROUND = 1
 } Counter_overflow_behaviour;
 
+#define COUNTER_SATURATE(MAX) {MAX, OFB_SATURATE, 0}
+#define COUNTER_WRAP_AROUND(MAX) {MAX, OFB_WRAP_AROUND, 0}
 typedef struct Counter {
     u32 data_max;
     Counter_overflow_behaviour cofb;

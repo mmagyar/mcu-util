@@ -24,10 +24,15 @@ void reset_buffer(Frame_Receive_buffer * receive_buffer, bool start) {
     receive_buffer->received_end = false;
     receive_buffer->received_start = start;
     receive_buffer->received_esc = false;
+    receive_buffer->buffer_size = FRAME_BUFFER_SIZE;
     receive_buffer->crc_counter = 0;
     receive_buffer->crc = 0;
 
 }
+
+/**
+ * Returns true if frame ended
+ */
 bool receive_byte(u8 data, Frame_Receive_buffer * receive_buffer) {
     if (receive_buffer->received_start && !receive_buffer->received_end) {
 
@@ -181,7 +186,7 @@ void unit_test() {
     Frame_Receive_buffer bfr;
     reset_buffer(&bfr, false);
     u8 * abc = (u8 *) "HEY SEXY";
-    u8 zzz[64] = { };
+    u8 zzz[64] = { 0 };
 
     u16 wrote_bytes = frame_bytes(abc, 8, zzz, 64, true);
     if (wrote_bytes != 14) {

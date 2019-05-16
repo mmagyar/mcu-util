@@ -25,6 +25,7 @@ void reset_buffer(Frame_Receive_buffer * receive_buffer, bool start) {
     receive_buffer->received_start = start;
     receive_buffer->received_esc = false;
     receive_buffer->buffer_size = FRAME_BUFFER_SIZE;
+    receive_buffer->message_size = 0;
     receive_buffer->crc_counter = 0;
     receive_buffer->crc = 0;
 
@@ -51,7 +52,9 @@ bool receive_byte(u8 data, Frame_Receive_buffer * receive_buffer) {
                     log_error(EC_FRAME_RECEIVE_CRC_MISMATCH, 'r');
 
                 }
-                reset_buffer(receive_buffer, false);
+                receive_buffer->received_start = false;
+                receive_buffer->received_esc = false;
+                receive_buffer->message_size = receive_buffer->buffer_cursor;
                 return true;
             }
         }

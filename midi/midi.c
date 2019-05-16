@@ -31,6 +31,8 @@ void default_channel_pressure_handler(Midi_channel channel, uint8_t value) {
 void default_bytes_ready_to_send(Circular_buffer * buffer) {
     return; // Do nothing by default
 }
+
+void standard_msg(Midi_message_type type, Midi_channel channel, u8 data1, u8 data2);
 inline void standard_msg(Midi_message_type type, Midi_channel channel, u8 data1, u8 data2) {
     add_to_buffer(&midi_tx_buffer, (type | channel));
     add_to_buffer(&midi_tx_buffer, data1 & ~0x80);

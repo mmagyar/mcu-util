@@ -1,5 +1,8 @@
 #include "circular_buffer.h"
 
+CIRCULAR_BUFFER_INDEX_TYPE advance_cursor(
+CIRCULAR_BUFFER_INDEX_TYPE current, CIRCULAR_BUFFER_INDEX_TYPE size);
+
 inline CIRCULAR_BUFFER_INDEX_TYPE advance_cursor(
 CIRCULAR_BUFFER_INDEX_TYPE current, CIRCULAR_BUFFER_INDEX_TYPE size) {
     return (((current) + 1) & ((1 << size) - 1));

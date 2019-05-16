@@ -18,6 +18,7 @@ typedef struct {
     bool received_esc;
     u8 buffer[FRAME_BUFFER_SIZE];
     u8 buffer_size;
+    u8 message_size;
     u32 crc;
     u32 crc_counter;
     u16 buffer_cursor;

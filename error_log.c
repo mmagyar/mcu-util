@@ -25,7 +25,19 @@ void log_error_direct(Error error) {
 
 }
 
-void log_error(Error_codes errorCode, char identifier) {
-    Error error = { errorCode, identifier };
-    log_error_direct(error);
+void log_error(Error_codes error_code, char identifier) {
+    bool errorAlreadyLogged = false;
+    for (unsigned int i = 0; i < ERROR_LOG_SIZE; i++) {
+        Error* last_error = &error_log[i];
+        if (error_code == last_error->error_code && identifier == last_error->identifier) {
+            errorAlreadyLogged = true;
+        }
+    }
+    if (!errorAlreadyLogged && error_count < ERROR_LOG_SIZE) {
+        //Copy error from stack to a known location
+        error_log[error_count].error_code = error_code;
+        error_log[error_count].identifier= identifier;
+    }
+
+    error_count++;
 }

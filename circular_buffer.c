@@ -5,7 +5,7 @@ CIRCULAR_BUFFER_INDEX_TYPE current, CIRCULAR_BUFFER_INDEX_TYPE size);
 
 inline CIRCULAR_BUFFER_INDEX_TYPE advance_cursor(
 CIRCULAR_BUFFER_INDEX_TYPE current, CIRCULAR_BUFFER_INDEX_TYPE size) {
-    return (((current) + 1) & ((1 << size) - 1));
+    return current + 1 >= size ? 0 : current + 1;
 }
 
 /**
@@ -40,7 +40,6 @@ inline void add_to_buffer(Circular_buffer *buffer, CIRCULAR_BUFFER_DATA_TYPE dat
     buffer->writePosition = newPosition;
 }
 
-
 /**
  * Add value to the buffer, if there are free space.
  * returns true on success, false if there is no space
@@ -74,7 +73,6 @@ inline void get_from_buffer(Circular_buffer *buffer, Buffer_read_result* result)
     }
 }
 
-
 /**
  * gets a value from the buffer in a circular fashion, advances the position of the cursor
  result is the output value
@@ -82,7 +80,7 @@ inline void get_from_buffer(Circular_buffer *buffer, Buffer_read_result* result)
  *
  */
 inline void pop_from_buffer(Circular_buffer *buffer, Buffer_read_result* result) {
-   volatile CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
+    CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
             buffer->size);
 
     result->data = buffer->buffer[index];

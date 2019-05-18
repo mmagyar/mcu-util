@@ -20,11 +20,11 @@
 #endif
 
 /**
- * Size is in power of 2: 1 = 2, 2 = 4, 3 = 8, 4 = 16 ... etc
+ * Size in number of values
  */
 #define def_Circular_buffer(name, size, identifier)    \
-    CIRCULAR_BUFFER_DATA_TYPE name ## _buffer[(1 << size)]; \
-    Circular_buffer name = {identifier, size, 0 , (1 << size) - 1 , name ## _buffer}
+    CIRCULAR_BUFFER_DATA_TYPE name ## _buffer[(size)]; \
+    Circular_buffer name = {identifier, size, 0 , (size) - 1 , name ## _buffer}
 
 /**
  * identifier - helps debugging,so we know what buffer we are working with
@@ -41,7 +41,7 @@
  */
 typedef struct {
     char identifier;
-    uint8_t size;
+    uint16_t size;
     CIRCULAR_BUFFER_INDEX_TYPE writePosition;
     CIRCULAR_BUFFER_INDEX_TYPE readPosition;
     CIRCULAR_BUFFER_DATA_TYPE *buffer;

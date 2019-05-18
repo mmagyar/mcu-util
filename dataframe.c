@@ -19,73 +19,73 @@ Frame_Receive_buffer receive_buffer;
 void (*crc_feed)(u8 data) = NULL;
 u32 (*crc_get)() = NULL;
 
-void reset_buffer(Frame_Receive_buffer * receive_buffer, bool start) {
-    receive_buffer->buffer_cursor = 0;
-    receive_buffer->received_end = false;
-    receive_buffer->received_start = start;
-    receive_buffer->received_esc = false;
-    receive_buffer->buffer_size = FRAME_BUFFER_SIZE;
-    receive_buffer->message_size = 0;
-    receive_buffer->crc_counter = 0;
-    receive_buffer->crc = 0;
+void reset_dataframe_buffer(Frame_Receive_buffer * frame_receive_buffer, bool start) {
+    frame_receive_buffer->buffer_cursor = 0;
+    frame_receive_buffer->received_end = false;
+    frame_receive_buffer->received_start = start;
+    frame_receive_buffer->received_esc = false;
+    frame_receive_buffer->buffer_size = FRAME_BUFFER_SIZE;
+    frame_receive_buffer->message_size = 0;
+    frame_receive_buffer->crc_counter = 0;
+    frame_receive_buffer->crc = 0;
 
 }
 
 /**
  * Returns true if frame ended
  */
-bool receive_byte(u8 data, Frame_Receive_buffer * receive_buffer) {
-    if (receive_buffer->received_start && !receive_buffer->received_end) {
+bool receive_byte(u8 data, Frame_Receive_buffer * frame_receive_buffer) {
+    if (frame_receive_buffer->received_start && !frame_receive_buffer->received_end) {
 
-        if (receive_buffer->crc_counter) {
-            receive_buffer->crc_counter--;
-            receive_buffer->crc = receive_buffer->crc << 8;
-            receive_buffer->crc |= data;
-            if (!receive_buffer->crc_counter) {
-                receive_buffer->received_end = true;
-                loop(i, receive_buffer->buffer_cursor)
+        if (frame_receive_buffer->crc_counter) {
+            frame_receive_buffer->crc_counter--;
+            frame_receive_buffer->crc = frame_receive_buffer->crc << 8;
+            frame_receive_buffer->crc |= data;
+            if (!frame_receive_buffer->crc_counter) {
+                frame_receive_buffer->received_end = true;
+                loop(i, frame_receive_buffer->buffer_cursor)
                 {
-                    crc_feed(receive_buffer->buffer[i]);
+                    crc_feed(frame_receive_buffer->buffer[i]);
                 }
                 u32 crc_result = crc_get();
-                if (crc_result != receive_buffer->crc) {
+                if (crc_result != frame_receive_buffer->crc) {
                     log_error(EC_FRAME_RECEIVE_CRC_MISMATCH, 'r');
 
                 }
-                receive_buffer->received_start = false;
-                receive_buffer->received_esc = false;
-                receive_buffer->message_size = receive_buffer->buffer_cursor;
+                frame_receive_buffer->received_start = false;
+                frame_receive_buffer->received_esc = false;
+                frame_receive_buffer->message_size = frame_receive_buffer->buffer_cursor;
                 return true;
             }
         }
-        else if (!receive_buffer->received_esc) {
+        else if (!frame_receive_buffer->received_esc) {
             if (data == FRAME_START) {
                 log_error(EC_FRAME_RECEIVED_START_WHILE_MESSAGE_STILL_IN_PROGRESS, 'd');
                 //On error, just ignore the current frame and start again
-                reset_buffer(receive_buffer, true);
+                reset_dataframe_buffer(frame_receive_buffer, true);
             } else if (data == FRAME_END_CRC32) {
-                receive_buffer->crc_counter = 4;
+                frame_receive_buffer->crc_counter = 4;
                 //Receive CRC, and than transmission is finished
             } else if (data == FRAME_END) {
                 //End transmission
-                receive_buffer->received_end = true;
+                frame_receive_buffer->received_end = true;
                 return true;
             } else if (data == FRAME_ESC) {
-                receive_buffer->received_esc = true;
+                frame_receive_buffer->received_esc = true;
             } else {
                 //Regular byte
-                receive_buffer->buffer[receive_buffer->buffer_cursor] = data;
-                receive_buffer->buffer_cursor++;
+                frame_receive_buffer->buffer[frame_receive_buffer->buffer_cursor] = data;
+                frame_receive_buffer->buffer_cursor++;
             }
         } else {
-            receive_buffer->buffer[receive_buffer->buffer_cursor] = data;
-            receive_buffer->buffer_cursor++;
+            frame_receive_buffer->buffer[frame_receive_buffer->buffer_cursor] = data;
+            frame_receive_buffer->buffer_cursor++;
             //Once we received the escaped byte we reset the escaping
-            receive_buffer->received_esc = false;
+            frame_receive_buffer->received_esc = false;
         }
     } else if (data == FRAME_START) {
         //TODO maybe check if previous finished
-        reset_buffer(receive_buffer, true);
+        reset_dataframe_buffer(frame_receive_buffer, true);
     } else {
         log_error(EC_FRAME_RECEIVED_UNEXPECTED_BYTE, (char) data);
 
@@ -187,7 +187,7 @@ u16 frame_bytes(u8 * in, u16 in_length, u8 * out, u16 buffer_size, bool add_crc)
  */
 void unit_test() {
     Frame_Receive_buffer bfr;
-    reset_buffer(&bfr, false);
+    reset_dataframe_buffer(&bfr, false);
     u8 * abc = (u8 *) "HEY SEXY";
     u8 zzz[64] = { 0 };
 

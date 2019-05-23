@@ -2,6 +2,8 @@
 #include "error_log.h"
 #include "safe_array.h"
 
+#include "stm32g070xx.h"
+#include "stm32g0xx_ll_crc.h"
 #define SEND_ESCAPE(data, needs_escape) \
            switch (data) { \
             case FRAME_START: \
@@ -16,8 +18,10 @@
 
 Frame_Receive_buffer receive_buffer;
 
-void (*crc_feed)(u8 data) = NULL;
-u32 (*crc_get)() = NULL;
+typedef u32 Crc_state;
+Crc_state (*crc_init)() = NULL;
+void (*crc_feed)(Crc_state state, u8 data) = NULL;
+u32 (*crc_get)(Crc_state) = NULL;
 
 void reset_dataframe_buffer(Frame_Receive_buffer * frame_receive_buffer, bool start) {
     frame_receive_buffer->buffer_cursor = 0;
@@ -29,8 +33,14 @@ void reset_dataframe_buffer(Frame_Receive_buffer * frame_receive_buffer, bool st
     frame_receive_buffer->crc_counter = 0;
     frame_receive_buffer->crc = 0;
 
-}
+    //Not strictly required but makes debugging easier.
+    loop(i, FRAME_BUFFER_SIZE)
+    {
+        frame_receive_buffer->buffer[i] = 0;
+    }
 
+}
+u8 finished_frames = 0;
 /**
  * Returns true if frame ended
  */
@@ -42,14 +52,18 @@ bool receive_byte(u8 data, Frame_Receive_buffer * frame_receive_buffer) {
             frame_receive_buffer->crc = frame_receive_buffer->crc << 8;
             frame_receive_buffer->crc |= data;
             if (!frame_receive_buffer->crc_counter) {
+                finished_frames++;
                 frame_receive_buffer->received_end = true;
+
+                Crc_state state = crc_init();
                 loop(i, frame_receive_buffer->buffer_cursor)
                 {
-                    crc_feed(frame_receive_buffer->buffer[i]);
+                    crc_feed(state, frame_receive_buffer->buffer[i]);
                 }
-                u32 crc_result = crc_get();
+
+                u32 crc_result = crc_get(state);
                 if (crc_result != frame_receive_buffer->crc) {
-                    log_error(EC_FRAME_RECEIVE_CRC_MISMATCH, 'r');
+                    log_error(EC_FRAME_RECEIVE_CRC_MISMATCH, finished_frames);
 
                 }
                 frame_receive_buffer->received_start = false;
@@ -60,7 +74,7 @@ bool receive_byte(u8 data, Frame_Receive_buffer * frame_receive_buffer) {
         }
         else if (!frame_receive_buffer->received_esc) {
             if (data == FRAME_START) {
-                log_error(EC_FRAME_RECEIVED_START_WHILE_MESSAGE_STILL_IN_PROGRESS, 'd');
+                log_error(EC_FRAME_RECEIVED_START_WHILE_MESSAGE_STILL_IN_PROGRESS, finished_frames);
                 //On error, just ignore the current frame and start again
                 reset_dataframe_buffer(frame_receive_buffer, true);
             } else if (data == FRAME_END_CRC32) {
@@ -87,7 +101,7 @@ bool receive_byte(u8 data, Frame_Receive_buffer * frame_receive_buffer) {
         //TODO maybe check if previous finished
         reset_dataframe_buffer(frame_receive_buffer, true);
     } else {
-        log_error(EC_FRAME_RECEIVED_UNEXPECTED_BYTE, (char) data);
+        log_error(EC_FRAME_RECEIVED_UNEXPECTED_BYTE, finished_frames);
 
     }
 
@@ -117,7 +131,7 @@ u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte)) {
 
     /** Send start of the frame byte **/
     send_byte(FRAME_START);
-
+    Crc_state state = crc_init();
     loop(i, size)
     {
         u8 cb = data[i];
@@ -126,13 +140,13 @@ u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte)) {
         /** Send byte through the arbitrary send function **/
         send_byte(cb);
         /** Feed each byte to the crc calculator function **/
-        crc_feed(cb);
+        crc_feed(state, cb);
 
     }
     /** Send end of frame with a 32 bit crc **/
     send_byte(FRAME_END_CRC32);
     /** Get result from crc calculator**/
-    u32 crc = crc_get();
+    u32 crc = crc_get(state);
     /** Send crc, MSB first **/
     send_byte(crc >> 24 & 0xFF);
     send_byte((crc >> 16) & 0xFF);
@@ -150,6 +164,11 @@ u16 frame_bytes(u8 * in, u16 in_length, u8 * out, u16 buffer_size, bool add_crc)
     const u16 out_limit = buffer_size - 2 - (add_crc ? 5 : 1);
     out[out_count++] = FRAME_START;
 
+    Crc_state state = 0;
+    if (add_crc) {
+        state = crc_init();
+    }
+
     loop(i, in_length)
     {
         if (out_count >= out_limit) {
@@ -163,13 +182,13 @@ u16 frame_bytes(u8 * in, u16 in_length, u8 * out, u16 buffer_size, bool add_crc)
 
         /** TODO, this maybe should not be in an if **/
         if (add_crc && crc_feed && crc_get) {
-            crc_feed(cb);
+            crc_feed(state, cb);
         }
     }
     if (add_crc) {
         out[out_count++] = FRAME_END_CRC32;
         /** Get result from crc calculator**/
-        u32 crc = crc_get();
+        u32 crc = crc_get(state);
         /** Send crc, MSB first **/
         out[out_count++] = (crc >> 24 & 0xFF);
         out[out_count++] = ((crc >> 16) & 0xFF);

@@ -65,10 +65,11 @@ inline bool add_to_buffer_if_not_full(Circular_buffer *buffer, char data) {
 inline void get_from_buffer(Circular_buffer *buffer, Buffer_read_result* result) {
     CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
             buffer->size);
-    result->data = buffer->buffer[index];
+
     //This means that there are pending bytes
     result->readSuccess = index != buffer->writePosition;
     if (result->readSuccess) {
+        result->data = buffer->buffer[index];
         buffer->readPosition = index;
     }
 }
@@ -83,12 +84,13 @@ inline void pop_from_buffer(Circular_buffer *buffer, Buffer_read_result* result)
     CIRCULAR_BUFFER_INDEX_TYPE index = advance_cursor(buffer->readPosition,
             buffer->size);
 
-    result->data = buffer->buffer[index];
     //This means that there are pending bytes
     result->readSuccess = index != buffer->writePosition;
 
-    buffer->buffer[index] = 0;
+
     if (result->readSuccess) {
+        result->data = buffer->buffer[index];
+        buffer->buffer[index] = 0;
         buffer->readPosition = index;
     }
 }

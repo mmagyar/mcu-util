@@ -47,14 +47,27 @@ u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte));
 u16 send_on_the_fly_no_crc(u8 * data, u16 size, void (*send_byte)(u8 byte));
 
 /**
+ * The state of the crc. This needs to handled separately,
+ * otherwise different crc calculations may interfere with each other
+ */
+typedef u32 Crc_state;
+
+/**
+ * Initialize CRC by returning crc state
+ */
+Crc_state (*crc_init)();
+
+/**
  * This will be used to feed data into the crc calculator
  * This needs to be pointed to a function if sending crc is used
  */
-void (*crc_feed)(u8 data);
+void (*crc_feed)(Crc_state state, u8 data);
 
 /**
  * This variable needs to point to a crc function that returns standard CRC32
  * The string of 8 bytes "HEY SEXY" should calculate 0xAC15FBBF
  */
-u32 (*crc_get)();
+u32 (*crc_get)(Crc_state);
+
+
 #endif /* UTIL_DATAFRAME_H_ */

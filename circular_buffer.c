@@ -87,7 +87,6 @@ inline void pop_from_buffer(Circular_buffer *buffer, Buffer_read_result* result)
     //This means that there are pending bytes
     result->readSuccess = index != buffer->writePosition;
 
-
     if (result->readSuccess) {
         result->data = buffer->buffer[index];
         buffer->buffer[index] = 0;

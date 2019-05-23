@@ -108,50 +108,51 @@ bool receive_byte(u8 data, Frame_Receive_buffer * frame_receive_buffer) {
     return false;
 }
 
-u16 send_on_the_fly_no_crc(u8 * data, u16 size, void (*send_byte)(u8 byte)) {
-    send_byte(FRAME_START);
+u16 send_on_the_fly_no_crc(u8 * data, u16 size, void (*send_byte)(u8 byte, u8 skip_port),
+        u8 skip_port) {
+    send_byte(FRAME_START, skip_port);
 
     loop(i, size)
     {
         u8 cb = data[i];
-        SEND_ESCAPE(cb, send_byte(FRAME_ESC););
-        send_byte(cb);
+        SEND_ESCAPE(cb, send_byte(FRAME_ESC,skip_port););
+        send_byte(cb, skip_port);
     }
-    send_byte(FRAME_END);
+    send_byte(FRAME_END, skip_port);
 
     return size;
 }
-u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte)) {
+u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte, u8 skip_port), u8 skip_port) {
 
     /** Check is CRC functions are set **/
     if (crc_feed == NULL || crc_get == NULL) {
         log_error(EC_FRAME_SEND_CRC_FUNCTIONS_NOT_SET, 'f');
-        send_on_the_fly_no_crc(data, size, send_byte);
+        send_on_the_fly_no_crc(data, size, send_byte, skip_port);
     }
 
     /** Send start of the frame byte **/
-    send_byte(FRAME_START);
+    send_byte(FRAME_START, skip_port);
     Crc_state state = crc_init();
     loop(i, size)
     {
         u8 cb = data[i];
         //If it's an escaped character, send an escape byte before sending the data;
-        SEND_ESCAPE(cb, send_byte(FRAME_ESC););
+        SEND_ESCAPE(cb, send_byte(FRAME_ESC, skip_port););
         /** Send byte through the arbitrary send function **/
-        send_byte(cb);
+        send_byte(cb, skip_port);
         /** Feed each byte to the crc calculator function **/
         crc_feed(state, cb);
 
     }
     /** Send end of frame with a 32 bit crc **/
-    send_byte(FRAME_END_CRC32);
+    send_byte(FRAME_END_CRC32, skip_port);
     /** Get result from crc calculator**/
     u32 crc = crc_get(state);
     /** Send crc, MSB first **/
-    send_byte(crc >> 24 & 0xFF);
-    send_byte((crc >> 16) & 0xFF);
-    send_byte((crc >> 8) & 0xFF);
-    send_byte(crc & 0xFF);
+    send_byte(crc >> 24 & 0xFF, skip_port);
+    send_byte((crc >> 16) & 0xFF, skip_port);
+    send_byte((crc >> 8) & 0xFF, skip_port);
+    send_byte(crc & 0xFF, skip_port);
 
     return size;
 }

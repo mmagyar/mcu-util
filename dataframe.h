@@ -39,12 +39,12 @@ u16 frame_bytes(u8 * in, u16 in_length, u8 * out, u16 buffer_size, bool add_crc)
  * Calls send_byte for every encoded byte, uses no intermediate buffer
  *
  */
-u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte));
+u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte, u8 skip_port), u8 skip_port);
 
 /**
  * Same a send_on_the_fly, but it doesn't send the crc, faster but less relaible
  */
-u16 send_on_the_fly_no_crc(u8 * data, u16 size, void (*send_byte)(u8 byte));
+u16 send_on_the_fly_no_crc(u8 * data, u16 size, void (*send_byte)(u8 byte, u8 skip_port), u8 skip_port);
 
 /**
  * The state of the crc. This needs to handled separately,

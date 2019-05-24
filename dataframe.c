@@ -82,7 +82,11 @@ bool receive_byte(u8 data, Frame_Receive_buffer * frame_receive_buffer) {
                 //Receive CRC, and than transmission is finished
             } else if (data == FRAME_END) {
                 //End transmission
+                finished_frames++;
                 frame_receive_buffer->received_end = true;
+                frame_receive_buffer->received_start = false;
+                frame_receive_buffer->received_esc = false;
+                frame_receive_buffer->message_size = frame_receive_buffer->buffer_cursor;
                 return true;
             } else if (data == FRAME_ESC) {
                 frame_receive_buffer->received_esc = true;
@@ -123,7 +127,6 @@ u16 send_on_the_fly_no_crc(u8 * data, u16 size, void (*send_byte)(u8 byte, u8 sk
     return size;
 }
 u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte, u8 skip_port), u8 skip_port) {
-
     /** Check is CRC functions are set **/
     if (crc_feed == NULL || crc_get == NULL) {
         log_error(EC_FRAME_SEND_CRC_FUNCTIONS_NOT_SET, 'f');
@@ -144,6 +147,7 @@ u16 send_on_the_fly(u8 * data, u16 size, void (*send_byte)(u8 byte, u8 skip_port
         crc_feed(state, cb);
 
     }
+
     /** Send end of frame with a 32 bit crc **/
     send_byte(FRAME_END_CRC32, skip_port);
     /** Get result from crc calculator**/
